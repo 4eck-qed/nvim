@@ -1,0 +1,26 @@
+{
+  "languageserver": {
+    "csharp-ls": {
+      "command": "csharp-ls",
+      "filetypes": ["cs"],
+      "rootPatterns": ["*.csproj", ".vim/", ".git/", ".hg/"]
+    },
+    "ccls": {
+      "command": "ccls",
+      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"],
+      "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+      "initializationOptions": {
+        "cache": {
+          "directory": "/tmp/ccls"
+        }
+      }
+    }
+  },
+  "workspace.ignoredFolders": ["$HOME", "$HOME/.cargo/**", "$HOME/.rustup/**"],
+  "svelte.enable-ts-plugin": true,
+  "coc.preferences.formatOnSave": true,
+  "snippets.ultisnips.pythonPrompt": false,
+  "Lua.diagnostics.globals": ["vim"],
+  "Lua.diagnostics.enable": false,
+  "python.jediEnabled": false
+}
