@@ -9,17 +9,17 @@ return {
     vim.g.loaded_netrwPlugin = 1
 
     -- change color for arrows in tree
-    vim.cmd([[ highlight NvimTreeFolderArrowClosed guifg=#3FC5FF ]])
-    vim.cmd([[ highlight NvimTreeFolderArrowOpen guifg=#3FC5FF ]])
+    vim.cmd([[ autocmd VimEnter * highlight NvimTreeFolderArrowClosed guifg=#3FC5FF ]])
+    vim.cmd([[ autocmd VimEnter * highlight NvimTreeFolderArrowOpen guifg=#3FC5FF ]])
 
     -- change color and style of executables
-    vim.cmd([[ highlight NvimTreeExecFile guifg=#00c400 gui=bold]])
+    vim.cmd([[ autocmd VimEnter * highlight NvimTreeExecFile guifg=#00c400 gui=bold ]])
 
     -- change color and style of files marked for copy
-    vim.cmd([[ highlight NvimTreeCopiedHL guifg=#ff00fb gui=italic,underline ]])
+    vim.cmd([[ autocmd VimEnter * highlight NvimTreeCopiedHL guifg=#ff00fb gui=italic,underline ]])
 
     -- change color and style of symlinks
-    vim.cmd([[ highlight NvimTreeSymlink guifg=#00eaff gui=italic ]])
+    vim.cmd([[ autocmd VimEnter * highlight NvimTreeSymlink guifg=#00eaff gui=italic ]])
 
 
     -- configure nvim-tree
