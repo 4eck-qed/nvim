@@ -34,14 +34,25 @@ return {
         require("mason").setup()
         require("mason-lspconfig").setup({
             ensure_installed = {
+                "clangd",
+                "cmake",
+                -- "csharp_ls",
+                -- "omnisharp_mono",
+                "omnisharp",
+                "cssls",
+                "eslint",
+                "html",
                 "lua_ls",
-                "csharp_ls",
+                "ltex", -- LaTeX
+                "marksman", -- Markdown
+                "powershell_es",
+                "pyright", -- Python
                 "rust_analyzer",
                 "tsserver",
-                "html",
-                "cssls",
                 "tailwindcss",
-                "eslint",
+                "taplo", -- Toml
+                "svelte",
+                "zls", -- Zig
             },
             handlers = {
                 function(server_name) -- default handler (optional)

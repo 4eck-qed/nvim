@@ -1,43 +1,41 @@
-local opt = vim.opt
-
 -- line numbers
-opt.relativenumber = false
-opt.number = true
+vim.opt.relativenumber = false
+vim.opt.number = true
 
 -- tabs & indentation
-opt.tabstop = 4
-opt.shiftwidth = 4
-opt.expandtab = true
-opt.autoindent = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+vim.opt.autoindent = true
 
 -- line wrapping
-opt.wrap = false
+vim.opt.wrap = false
 
 -- search settings
-opt.ignorecase = true -- ignore case when searching with lower case
-opt.smartcase = true  -- assume case sensitive when searchign w/ upper case
+vim.opt.ignorecase = true -- ignore case when searching with lower case
+vim.opt.smartcase = true  -- assume case sensitive when searchign w/ upper case
 
 -- cursor line
-opt.cursorline = true -- line under cursor
+vim.opt.cursorline = true -- line under cursor
 
 -- appearance
-opt.termguicolors = true
-opt.background = "dark"
-opt.signcolumn = "yes"
+vim.opt.termguicolors = true
+vim.opt.background = "dark"
+vim.opt.signcolumn = "yes"
 
 -- backspace
-opt.backspace = "indent,eol,start"
+vim.opt.backspace = "indent,eol,start"
 
 -- clipboard
-opt.clipboard:append("unnamedplus")
+vim.opt.clipboard:append("unnamedplus")
 
 -- split windows
-opt.splitright = true
-opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.splitbelow = true
 
-opt.iskeyword:append("-") -- count `-` as part of a word
+vim.opt.iskeyword:append("-") -- count `-` as part of a word
 
-opt.updatetime = 100
+vim.opt.updatetime = 100
 
 -- delete trailing ws on save
 -- vim.cmd([[autocmd BufWritePre * %s/\s\+$//e]])
