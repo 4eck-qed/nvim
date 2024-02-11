@@ -1,0 +1,6 @@
+return {
+    "z0mbix/vim-shfmt",
+    config = function()
+        vim.cmd([[ let g:shfmt_fmt_on_save = 1 ]])
+    end
+}

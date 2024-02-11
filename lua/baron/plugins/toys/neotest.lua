@@ -21,14 +21,16 @@ return {
                 }
             })
 
-            vim.keymap.set("n", "<leader>tc", function()
-                neotest.run.run()
-            end)
+            local keyset = require("baron.core.keymaps").set
+            local plugin = "Neotest"
 
-            vim.keymap.set("n", "<leader>tf", function()
+            keyset(plugin, "n", "<leader>tc", function()
+                neotest.run.run()
+            end, { desc = "Run test" })
+
+            keyset(plugin, "n", "<leader>tf", function()
                 neotest.run.run(vim.fn.expand("%"))
-            end)
+            end, { desc = "Run test ?" })
         end,
     },
 }
-

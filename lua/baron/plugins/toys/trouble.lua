@@ -6,17 +6,20 @@ return {
                 icons = false,
             })
 
-            vim.keymap.set("n", "<leader>tt", function()
+            local keyset = require("baron.core.keymaps").set
+            local plugin = "Trouble"
+
+            keyset(plugin, "n", "<leader>tt", function()
                 require("trouble").toggle()
-            end)
+            end, { desc = "Toggle" })
 
-            vim.keymap.set("n", "[", function()
+            keyset(plugin, "n", "[", function()
                 require("trouble").previous({ skip_groups = true, jump = true });
-            end)
+            end, { desc = "Previous" })
 
-            vim.keymap.set("n", "]", function()
+            keyset(plugin, "n", "]", function()
                 require("trouble").next({ skip_groups = true, jump = true });
-            end)
+            end, { desc = "Next" })
         end
     },
 }

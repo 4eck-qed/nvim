@@ -1,15 +1,21 @@
 return {
     "prettier/vim-prettier",
+    -- dependencies = {
+    --     "sbdchd/neoformat"
+    -- },
     config = function()
         -- format on save
-        vim.cmd([[autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.svelte,*.yaml,*.html PrettierAsync]])
+        vim.cmd([[
+            autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.svelte,*.yaml,*.html PrettierAsync
+        ]])
         vim.g.prettier_autoformat = 1
         vim.g.prettier_autoformat_require_pragma = 1
         vim.g.prettier_quickfix_enabled = 0
         -- let g:prettier#autoformat_config_present = 1
         -- let g:prettier#autoformat_config_files = [...]
-        -- let g:prettier#exec_cmd_path = "~/path/to/cli/prettier"
-        -- let g:prettier#exec_cmd_async = 1
+        -- vim.cmd([[let g:prettier#exec_cmd_path = $PRETTIER]])
+        -- vim.cmd([[let g:neoformat_try_node_exe = 1]])
+        -- vim.cmd([[let g:prettier#exec_cmd_async = 1]])
         -- " Max line length that prettier will wrap on: a number or 'auto' (use
         -- " textwidth).
         -- " default: 'auto'

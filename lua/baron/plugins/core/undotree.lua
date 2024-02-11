@@ -1,9 +1,9 @@
-
 return {
     "mbbill/undotree",
+    config = function()
+        local keyset = require("baron.core.keymaps").set
+        local plugin = "Undotree"
 
-    config = function() 
-        vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
+        keyset(plugin, "n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Toggle" })
     end
 }
-
