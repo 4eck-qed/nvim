@@ -1,10 +1,12 @@
-local utils = require("baron.core.utils")
-local lazypath
-if utils.is_windows() then
-  lazypath = os.getenv("LOCALAPPDATA") .. "/nvim-data" .. "/lazy/lazy.nvim"
+local platform = require("baron.core.utils.platform")
+local datapath
+if platform.is_windows() then
+  datapath = os.getenv("LOCALAPPDATA") .. "/nvim-data"
 else
-  lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+  datapath = vim.fn.stdpath("data")
 end
+
+local lazypath = datapath .. "/lazy/lazy.nvim"
 
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -22,6 +24,7 @@ require("lazy").setup({
   { import = "baron.plugins" },
   { import = "baron.plugins.core" },
   { import = "baron.plugins.langs" },
+  { import = "baron.plugins.lsp" },
   { import = "baron.plugins.toys" },
   { import = "baron.plugins.ui" },
 }, {

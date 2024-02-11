@@ -1,0 +1,315 @@
+return {
+    "neoclide/coc.nvim",
+    branch = "release",
+    config = function()
+        -- Some servers have issues with backup files, see #649
+        vim.opt.backup = false
+        vim.opt.writebackup = false
+
+        -- Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
+        -- delays and poor user experience
+        vim.opt.updatetime = 300
+
+        -- Always show the signcolumn, otherwise it would shift the text each time
+        -- diagnostics appeared/became resolved
+        vim.opt.signcolumn = "yes"
+
+        vim.g.coc_global_extensions = {
+            'coc-snippets',
+            -- 'coc-pairs',
+            'coc-tsserver',
+            'coc-html',
+            'coc-css',
+            'coc-prettier',
+            'coc-json',
+            'coc-angular',
+            'coc-svelte',
+            'coc-vimtex'
+        }
+
+        -- format html
+        vim.cmd([[command! -nargs=0 CocPrettier :CocCommand prettier.formatFile]])
+
+        -- Autocomplete
+        function _G.check_back_leader()
+            local col = vim.fn.col('.') - 1
+            return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') ~= nil
+        end
+
+        -- Use K to show documentation in preview window
+        function _G.show_docs()
+            local cw = vim.fn.expand('<cword>')
+            if vim.fn.index({ 'vim', 'help' }, vim.bo.filetype) >= 0 then
+                vim.api.nvim_command('h ' .. cw)
+            elseif vim.api.nvim_eval('coc#rpc#ready()') then
+                vim.fn.CocActionAsync('doHover')
+            else
+                vim.api.nvim_command('!' .. vim.o.keywordprg .. ' ' .. cw)
+            end
+        end
+
+        -- Highlight the symbol and its references on a CursorHold event(cursor is idle)
+        vim.api.nvim_create_augroup("CocGroup", {})
+        vim.api.nvim_create_autocmd("CursorHold", {
+            group = "CocGroup",
+            command = "silent call CocActionAsync('highlight')",
+            desc = "Highlight symbol under cursor on CursorHold"
+        })
+
+        -- Setup formatexpr specified filetype(s)
+        vim.api.nvim_create_autocmd("FileType", {
+            group = "CocGroup",
+            pattern = "typescript,json",
+            command = "setl formatexpr=CocAction('formatSelected')",
+            desc = "Setup formatexpr specified filetype(s)."
+        })
+
+        -- Update signature help on jump placeholder
+        vim.api.nvim_create_autocmd("User", {
+            group = "CocGroup",
+            pattern = "CocJumpPlaceholder",
+            command = "call CocActionAsync('showSignatureHelp')",
+            desc = "Update signature help on jump placeholder"
+        })
+
+        -- Add `:Format` command to format current buffer
+        vim.api.nvim_create_user_command("Format", "call CocAction('format')", {})
+
+        -- " Add `:Fold` command to fold current buffer
+        vim.api.nvim_create_user_command("Fold", "call CocAction('fold', <f-args>)", { nargs = '?' })
+
+        -- Add `:OR` command for organize imports of the current buffer
+        vim.api.nvim_create_user_command("OR", "call CocActionAsync('runCommand', 'editor.action.organizeImport')", {})
+
+        -- Add (Neo)Vim's native statusline support
+        -- NOTE: Please see `:h coc-status` for integrations with external plugins that
+        -- provide custom statusline: lightline.vim, vim-airline
+        vim.opt.statusline:prepend("%{coc#status()}%{get(b:,'coc_current_function','')}")
+
+        -- Use Tab for trigger completion with characters ahead and navigate
+        -- NOTE: There's always a completion item selected by default, you may want to enable
+        -- no select by setting `"suggest.noselect": true` in your configuration file
+        -- NOTE: Use command ':verbose imap <tab>' to make sure Tab is not mapped by
+        -- other plugins before putting this into your config
+        local keyset = require("baron.core.keymaps").set
+        local plugin = "CoC"
+
+        keyset(plugin, "i", "<TAB>",
+            'coc#pum#visible() ? coc#pum#next(1) : v:lua.check_back_leader() ? "<TAB>" : coc#refresh()', {
+                silent = true,
+                noremap = true,
+                expr = true,
+                replace_keycodes = false,
+                desc = "Autocomplete: Move next"
+            })
+        keyset(plugin, "i", "<S-TAB>", [[coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"]], {
+            silent = true,
+            noremap = true,
+            expr = true,
+            replace_keycodes = false,
+            desc = "Autocomplete: Move previous"
+        })
+
+        -- Make <CR> to accept selected completion item or notify coc.nvim to format
+        -- <C-g>u breaks current undo, please make your own choice
+        keyset(plugin, "i", "<CR>", [[coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"]],
+            {
+                silent = true,
+                noremap = true,
+                expr = true,
+                replace_keycodes = false,
+                desc = "Autocomplete: Accept"
+            })
+
+        keyset(plugin, "i", "<C-j>", "<Plug>(coc-snippets-expand-jump)", { desc = "Snippets: Hide" })
+        keyset(plugin, "i", "<C-leader>", "coc#refresh()", {
+            silent = true,
+            expr = true,
+            desc = "Trigger code completion"
+        })
+        keyset(plugin, "n", "[d", "<Plug>(coc-diagnostic-prev)", {
+            silent = true,
+            desc = "Diagnostic: Previous"
+        })
+        keyset(plugin, "n", "]d", "<Plug>(coc-diagnostic-next)", {
+            silent = true,
+            desc = "Diagnostic: Next"
+        })
+        keyset(plugin, "n", "<F12>", "<Plug>(coc-definition)", {
+            silent = true,
+            desc = "Goto Definition"
+        })
+        keyset(plugin, "i", "<F12>", "<C-o><Plug>(coc-definition)", {
+            silent = true,
+            desc = "Goto definition"
+        })
+        keyset(plugin, "n", "<leader>gt", "<Plug>(coc-type-definition)", {
+            silent = true,
+            desc = "Goto type definition"
+        })
+        keyset(plugin, "n", "<leader>gi", "<Plug>(coc-implementation)", {
+            silent = true,
+            desc = "Goto imlementation"
+        })
+        keyset(plugin, "n", "<leader>gr", "<Plug>(coc-references)", {
+            silent = true,
+            desc = "Show references"
+        })
+        keyset(plugin, "n", "K", '<CMD>lua _G.show_docs()<CR>', {
+            silent = true,
+            desc = "Show docs"
+        })
+        keyset(plugin, "i", "<C-k><C-k>", '<C-o><CMD>lua _G.show_docs()<CR>', {
+            silent = true,
+            desc = "Show docs"
+        })
+        keyset(plugin, "n", "<leader>rr", "<Plug>(coc-rename)", {
+            silent = true,
+            desc = "Rename"
+        })
+        keyset(plugin, "i", "<C-r><C-r>", "<C-o><Plug>(coc-rename)", {
+            silent = true,
+            desc = "Rename"
+        })
+        keyset(plugin, "x,n", "<leader>f", "<Plug>(coc-format-selected)", {
+            silent = true,
+            desc = "Format selected"
+        })
+        keyset(plugin, "x,n", "<leader>a", "<Plug>(coc-codeaction-selected)", {
+            silent = true,
+            nowait = true,
+            desc = "Code action @selected"
+        })
+        keyset(plugin, "n", "<leader>ca", "<Plug>(coc-codeaction-cursor)", {
+            silent = true,
+            nowait = true,
+            desc = "Code action @cursor"
+        })
+        keyset(plugin, "i", "<M-CR>", "<Esc><Plug>(coc-codeaction-cursor)a", {
+            silent = true,
+            nowait = true,
+            desc = "Code action @cursor"
+        })
+        keyset(plugin, "n", "<leader>cs", "<Plug>(coc-codeaction-source)", {
+            silent = true,
+            nowait = true,
+            desc = "Code action @file"
+        })
+        keyset(plugin, "n", "<leader>qf", "<Plug>(coc-fix-current)", {
+            silent = true,
+            nowait = true,
+            desc = "Code action @line"
+        })
+        keyset(plugin, "n", "<leader>rf", "<Plug>(coc-codeaction-refactor)", {
+            silent = true,
+            desc = "Refactor"
+        })
+        keyset(plugin, "x", "<leader>rf", "<Plug>(coc-codeaction-refactor-selected)", {
+            silent = true,
+            desc = "Refactor selected"
+        })
+        keyset(plugin, "n", "<leader>cl", "<Plug>(coc-codelens-action)", {
+            silent = true,
+            nowait = true,
+            desc = "Run code lens actions @line"
+        })
+
+        -- Map function and class text objects
+        -- NOTE: Requires 'textDocument.documentSymbol' support from the language server
+        keyset(plugin, "x,o", "if", "<Plug>(coc-funcobj-i)", {
+            silent = true,
+            nowait = true,
+            desc = "Function object"
+        })
+        keyset(plugin, "x,o", "af", "<Plug>(coc-funcobj-a)", {
+            silent = true,
+            nowait = true,
+            desc = "Function object"
+        })
+        keyset(plugin, "x,o", "ic", "<Plug>(coc-classobj-i)", {
+            silent = true,
+            nowait = true,
+            desc = "Class object"
+        })
+        keyset(plugin, "x,o", "ac", "<Plug>(coc-classobj-a)", {
+            silent = true,
+            nowait = true,
+            desc = "Class object"
+        })
+
+        -- Remap <C-f> and <C-b> to scroll float windows/popups
+        ---@diagnostic disable-next-line: redefined-local
+        keyset(plugin, "n,v", "<C-f>", 'coc#float#has_scroll() ? coc#float#scroll(1) : "<C-f>"', {
+            silent = true,
+            nowait = true,
+            expr = true,
+            desc = "Scroll down"
+        })
+        keyset(plugin, "n,v", "<C-b>", 'coc#float#has_scroll() ? coc#float#scroll(0) : "<C-b>"', {
+            silent = true,
+            nowait = true,
+            expr = true,
+            desc = "Scroll up"
+        })
+        keyset(plugin, "i", "<C-f>", 'coc#float#has_scroll() ? "<c-r>=coc#float#scroll(1)<cr>" : "<Right>"', {
+            silent = true,
+            nowait = true,
+            expr = true,
+            desc = "Scroll down"
+        })
+        keyset(plugin, "i", "<C-b>", 'coc#float#has_scroll() ? "<c-r>=coc#float#scroll(0)<cr>" : "<Left>"', {
+            silent = true,
+            nowait = true,
+            expr = true,
+            desc = "Scroll up"
+        })
+
+        -- Range select
+        -- Requires 'textDocument/selectionRange' support of language server
+        keyset(plugin, "n,x", "<leader>rs", "<Plug>(coc-range-select)", { silent = true, desc = "Range select" })
+
+        -- Mappings for CoCList
+        -- code actions and coc stuff
+        ---@diagnostic disable-next-line: redefined-local
+        keyset(plugin, "n", "<leader>cd", ":<C-u>CocList diagnostics<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "show all diagnostics"
+        })
+        keyset(plugin, "n", "<leader>ce", ":<C-u>CocList extensions<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "manage extensions"
+        })
+        keyset(plugin, "n", "<leader>cc", ":<C-u>CocList commands<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "show commands"
+        })
+        keyset(plugin, "n", "<leader>co", ":<C-u>CocList outline<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "find symbol of current document"
+        })
+        keyset(plugin, "n", "<leader>cw", ":<C-u>CocList -I symbols<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "search workleader symbols"
+        })
+        keyset(plugin, "n", "<leader>j", ":<C-u>CocNext<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "do default action for next item"
+        })
+        keyset(plugin, "n", "<leader>k", ":<C-u>CocPrev<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "do default action for previous item"
+        })
+        keyset(plugin, "n", "<leader>p", ":<C-u>CocListResume<cr>", {
+            silent = true,
+            nowait = true,
+            desc = "resume latest coc list"
+        })
+    end
+}
