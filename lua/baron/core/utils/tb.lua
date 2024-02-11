@@ -18,10 +18,10 @@ function tb.merge(tb1, tb2)
 end
 
 --- Checks if table contains item
----@param tb table
+---@param tbl table
 ---@param item any
-function tb.contains(tb, item)
-    for _, v in ipairs(tb) do
+function tb.contains(tbl, item)
+    for _, v in ipairs(tbl) do
         if v == item then
             return true
         end

@@ -16,10 +16,10 @@ local keymaps = {}
 -- }
 
 -- key: string = modes ; value: table = infos
-baron_keymaps_core = {}
+baron.keymaps = {}
 
 -- key: string (=plugin) ; value: table (=keymaps=[key: string (=modes), value: table (=infos)]
-baron_keymaps_plugins = {}
+baron.keymaps_plugins = {}
 
 vim.g.mapleader = ' '
 
@@ -29,72 +29,24 @@ vim.g.mapleader = ' '
     /////////////////////////////////
 ]]
 require("baron.core.functions")
-local str_util = require("baron.core.utils.str")
-local tb_util = require("baron.core.utils.tb")
-
---- Sets a keymap.
----@param plugin string Name of the plugin
----@param modes string | table Modes
----@param key string Key
----@param action string | function Action
----@param options table Options
-function keymaps.set(plugin, modes, key, action, options)
-    baron_keymaps_plugins[plugin] = baron_keymaps_plugins[plugin] or {}
-
-    local modes_str = type(modes) == "table" and table.concat(modes, ',') or modes
-    local modes_tb = {}
-
-    -- Convert `i,n,v` to `{'i', 'n', 'v'}`
-    if type(modes) == "string" then
-        for mode in modes:gmatch("[^,]+") do
-            table.insert(modes_tb, mode)
-        end
-    else
-        modes_tb = modes
-    end
-
-    -- insert into cheat sheet
-    for _, mode in ipairs(modes_tb) do
-        baron_keymaps_plugins[plugin][mode] = baron_keymaps_plugins[plugin][mode] or {}
-        table.insert(baron_keymaps_plugins[plugin][mode], {
-            modes = modes_str,
-            key = key,
-            action = action,
-            options = options,
-        })
-    end
-
-    vim.keymap.set(modes_tb, key, action, options)
-end
-
---- Shows all keymaps
----@param filter_keys table | nil list of keys
-function show_keymaps(filter_keys)
-    if filter_keys then
-        echo({ { "Filter: ", "WarningMsg" }, { table.concat(filter_keys, ', ') } })
-    end
-    _show_keymaps("Core", baron_keymaps_core, filter_keys)
-    for k, v in pairs(baron_keymaps_plugins) do
-        _show_keymaps(k, baron_keymaps_plugins[k], filter_keys)
-    end
-end
+local stringu = require("baron.core.utils.str")
+local tabelu = require("baron.core.utils.tb")
 
 --[[
-        private
-]]
+    Local
+--]]
 
-function echo(chunks)
+local function echo(chunks)
     vim.api.nvim_echo(chunks, false, {})
 end
 
--- core
-function _set(modes, key, action, options, is_operation)
+local function _set(modes, key, action, options, is_operation)
     for mode in modes:gmatch("[^,]+") do
-        baron_keymaps_core[mode] = baron_keymaps_core[mode] or {}
+        baron.keymaps[mode] = baron.keymaps[mode] or {}
 
         if mode == "i" and is_operation then
-            operation = "<C-o>" .. action
-            table.insert(baron_keymaps_core[mode], {
+            local operation = "<C-o>" .. action
+            table.insert(baron.keymaps[mode], {
                 modes = mode,
                 key = key,
                 action = operation,
@@ -102,7 +54,7 @@ function _set(modes, key, action, options, is_operation)
             })
             vim.keymap.set(mode, key, operation, options)
         else
-            table.insert(baron_keymaps_core[mode], {
+            table.insert(baron.keymaps[mode], {
                 modes = mode,
                 key = key,
                 action = action,
@@ -116,11 +68,11 @@ end
 -- checks and writes collisions to keymaps
 local function check_collisions()
     -- modes x [key x table{ plugin, action }]
-    buffer = {}
+    local buffer = {}
     -- go through plugins
-    for plugin, keymaps in pairs(baron_keymaps_plugins) do
+    for plugin, kms in pairs(baron.keymaps_plugins) do
         -- go through modes
-        for modes, infos in pairs(keymaps) do
+        for modes, infos in pairs(kms) do
             buffer[modes] = buffer[modes] or {}
 
             -- go through infos
@@ -133,7 +85,7 @@ local function check_collisions()
                     table.insert(info.collisions, buffered)
 
                     -- add collision to the one that was buffered
-                    for _, info_ in ipairs(baron_keymaps_plugins[buffered.plugin][modes]) do
+                    for _, info_ in ipairs(baron.keymaps_plugins[buffered.plugin][modes]) do
                         if info_.key == info.key then
                             info_.collisions = info_.collisions or {}
 
@@ -154,12 +106,12 @@ local function check_collisions()
     end
 end
 
-function _show_keymaps(title, keymaps, filter_keys)
+local function _show_keymaps(title, kms, filter_keys)
     check_collisions()
     echo({ { title, "Function" } })
 
-    col_w = 30
-    sep = " | "
+    local col_w = 30
+    local sep = " | "
 
     -- local sorted = {}
     -- for modes, infos in pairs(keymaps) do
@@ -199,14 +151,14 @@ function _show_keymaps(title, keymaps, filter_keys)
     -- end)
 
     echo({ { pad('', col_w * 4, '-'), "Comment" } })
-    cols = {
+    local cols = {
         pad("Modes", 10, ' '),
         pad("Keybind", col_w, ' '),
         pad("Action", col_w, ' '),
         pad("Description", col_w, ' '),
     }
 
-    header = {}
+    local header = {}
     for i, col in ipairs(cols) do
         table.insert(header, { col, "Statement" })
         if i < #cols then
@@ -216,7 +168,7 @@ function _show_keymaps(title, keymaps, filter_keys)
 
     echo(header)
 
-    for modes, infos in pairs(keymaps) do
+    for modes, infos in pairs(kms) do
         local modes_hl
         if modes == "i" then
             modes_hl = "Structure"
@@ -227,7 +179,7 @@ function _show_keymaps(title, keymaps, filter_keys)
         end
         echo({ { pad(modes, 10, ' '), modes_hl } })
         for i, v in ipairs(infos) do
-            if filter_keys and not tb_util.contains(filter_keys, v.key) then
+            if filter_keys and not tabelu.contains(filter_keys, v.key) then
                 goto continue
             end
 
@@ -236,7 +188,7 @@ function _show_keymaps(title, keymaps, filter_keys)
             if type(action) == "function" then
                 action = "<fn>"
             end
-            action = str_util.limit(action, col_w)
+            action = stringu.limit(action, col_w)
 
             local key = v.key
             local key_hl
@@ -278,6 +230,58 @@ end
 local function map_leader(key, action, options)
     key = "<leader>" .. key
     _set("n", key, action, options)
+end
+
+
+--[[
+    Global
+]]
+
+--- Sets a keymap.
+---@param plugin string Name of the plugin
+---@param modes string | table Modes
+---@param key string Key
+---@param action string | function Action
+---@param options table Options
+function keymaps.set(plugin, modes, key, action, options)
+    baron.keymaps_plugins[plugin] = baron.keymaps_plugins[plugin] or {}
+
+    local modes_str = type(modes) == "table" and table.concat(modes, ',') or modes
+    local modes_tb = {}
+
+    -- Convert `i,n,v` to `{'i', 'n', 'v'}`
+    if type(modes) == "string" then
+        for mode in modes:gmatch("[^,]+") do
+            table.insert(modes_tb, mode)
+        end
+    else
+        modes_tb = modes
+    end
+
+    -- insert into cheat sheet
+    for _, mode in ipairs(modes_tb) do
+        baron.keymaps_plugins[plugin][mode] = baron.keymaps_plugins[plugin][mode] or {}
+        table.insert(baron.keymaps_plugins[plugin][mode], {
+            modes = modes_str,
+            key = key,
+            action = action,
+            options = options,
+        })
+    end
+
+    vim.keymap.set(modes_tb, key, action, options)
+end
+
+--- Shows all keymaps
+---@param filter_keys table | nil list of keys
+function show_keymaps(filter_keys)
+    if filter_keys then
+        echo({ { "Filter: ", "WarningMsg" }, { table.concat(filter_keys, ', ') } })
+    end
+    _show_keymaps("Core", baron.keymaps, filter_keys)
+    for k, v in pairs(baron.keymaps_plugins) do
+        _show_keymaps(k, v, filter_keys)
+    end
 end
 
 --[[

@@ -1,15 +1,15 @@
 local str = {}
 
 --- Limits the string to given length adding an ellipsis if the string is longer then limit
----@param str string
----@param len int
----@return string limited
-function str.limit(str, len)
-    if #str > len then
-        return string.sub(str, 1, len - 3) .. "..."
+---@param s string
+---@param len integer
+---@return string
+function str.limit(s, len)
+    if #s > len then
+        return string.sub(s, 1, len - 3) .. "..."
     end
 
-    return str
+    return s
 end
 
 return str
