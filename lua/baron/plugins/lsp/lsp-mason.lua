@@ -15,12 +15,12 @@ return {
     config = function()
         local keyset = require("baron.core.keymaps").set
         local plugin = "LSP"
-        keyset(plugin, 'n', '<leader>rr', vim.lsp.buf.rename, {})
-        keyset(plugin, 'n', '<leader>ca', vim.lsp.buf.code_action, {})
-        keyset(plugin, 'n', '<F12>', vim.lsp.buf.definition, {})
-        keyset(plugin, 'n', '<C-F12>', vim.lsp.buf.implementation, {})
-        keyset(plugin, 'n', '<leader>rf', require('telescope.builtin').lsp_references, {})
-        keyset(plugin, 'n', 'K', vim.lsp.buf.hover, {})
+        keyset(plugin, 'n', '<leader>rr', vim.lsp.buf.rename, { desc = "Rename" })
+        keyset(plugin, 'n', '<leader>ca', vim.lsp.buf.code_action, { desc = "Code action" })
+        keyset(plugin, 'n', '<F12>', vim.lsp.buf.definition, { desc = "Goto definition" })
+        keyset(plugin, 'n', '<C-F12>', vim.lsp.buf.implementation, { desc = "Goto implementation" })
+        keyset(plugin, 'n', '<leader>fr', require('telescope.builtin').lsp_references, { desc = "Find references" })
+        keyset(plugin, 'n', 'K', vim.lsp.buf.hover, { desc = "Hover" })
 
         local cmp = require('cmp')
         local cmp_lsp = require("cmp_nvim_lsp")
