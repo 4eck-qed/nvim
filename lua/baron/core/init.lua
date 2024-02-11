@@ -1,4 +1,5 @@
 require("baron.core.functions")
+require("baron.core.highlights")
 require("baron.core.keymaps")
 require("baron.core.options")
-BCU = require("baron.core.utils")
+require("baron.core.utils")

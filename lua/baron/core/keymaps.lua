@@ -1,4 +1,25 @@
-baron_keymaps = {}
+local keymaps = {}
+
+-- keymap info:
+-- {
+--      modes: string
+--      key: string
+--      action: string
+--      options: table
+--      [collisions: table]
+-- }
+
+-- collision
+-- {
+--      plugin: string
+--      action: string
+-- }
+
+-- key: string = modes ; value: table = infos
+baron_keymaps_core = {}
+
+-- key: string (=plugin) ; value: table (=keymaps=[key: string (=modes), value: table (=infos)]
+baron_keymaps_plugins = {}
 
 vim.g.mapleader = ' '
 
@@ -8,306 +29,357 @@ vim.g.mapleader = ' '
     /////////////////////////////////
 ]]
 require("baron.core.functions")
+local str_util = require("baron.core.utils.str")
+local tb_util = require("baron.core.utils.tb")
 
-function show_keymaps()
-    print("Custom Keymaps(" .. len(baron_keymaps) .. "):")
+--- Sets a keymap.
+---@param plugin string Name of the plugin
+---@param modes string | table Modes
+---@param key string Key
+---@param action string | function Action
+---@param options table Options
+function keymaps.set(plugin, modes, key, action, options)
+    baron_keymaps_plugins[plugin] = baron_keymaps_plugins[plugin] or {}
+
+    local modes_str = type(modes) == "table" and table.concat(modes, ',') or modes
+    local modes_tb = {}
+
+    -- Convert `i,n,v` to `{'i', 'n', 'v'}`
+    if type(modes) == "string" then
+        for mode in modes:gmatch("[^,]+") do
+            table.insert(modes_tb, mode)
+        end
+    else
+        modes_tb = modes
+    end
+
+    -- insert into cheat sheet
+    for _, mode in ipairs(modes_tb) do
+        baron_keymaps_plugins[plugin][mode] = baron_keymaps_plugins[plugin][mode] or {}
+        table.insert(baron_keymaps_plugins[plugin][mode], {
+            modes = modes_str,
+            key = key,
+            action = action,
+            options = options,
+        })
+    end
+
+    vim.keymap.set(modes_tb, key, action, options)
+end
+
+--- Shows all keymaps
+---@param filter_keys table | nil list of keys
+function show_keymaps(filter_keys)
+    if filter_keys then
+        echo({ { "Filter: ", "WarningMsg" }, { table.concat(filter_keys, ', ') } })
+    end
+    _show_keymaps("Core", baron_keymaps_core, filter_keys)
+    for k, v in pairs(baron_keymaps_plugins) do
+        _show_keymaps(k, baron_keymaps_plugins[k], filter_keys)
+    end
+end
+
+--[[
+        private
+]]
+
+function echo(chunks)
+    vim.api.nvim_echo(chunks, false, {})
+end
+
+-- core
+function _set(modes, key, action, options, is_operation)
+    for mode in modes:gmatch("[^,]+") do
+        baron_keymaps_core[mode] = baron_keymaps_core[mode] or {}
+
+        if mode == "i" and is_operation then
+            operation = "<C-o>" .. action
+            table.insert(baron_keymaps_core[mode], {
+                modes = mode,
+                key = key,
+                action = operation,
+                options = options,
+            })
+            vim.keymap.set(mode, key, operation, options)
+        else
+            table.insert(baron_keymaps_core[mode], {
+                modes = mode,
+                key = key,
+                action = action,
+                options = options,
+            })
+            vim.keymap.set(mode, key, action, options)
+        end
+    end
+end
+
+-- checks and writes collisions to keymaps
+local function check_collisions()
+    -- modes x [key x table{ plugin, action }]
+    buffer = {}
+    -- go through plugins
+    for plugin, keymaps in pairs(baron_keymaps_plugins) do
+        -- go through modes
+        for modes, infos in pairs(keymaps) do
+            buffer[modes] = buffer[modes] or {}
+
+            -- go through infos
+            for _, info in ipairs(infos) do
+                if buffer[modes][info.key] ~= nil then
+                    info.collisions = info.collisions or {}
+
+                    local buffered = buffer[modes][info.key]
+
+                    table.insert(info.collisions, buffered)
+
+                    -- add collision to the one that was buffered
+                    for _, info_ in ipairs(baron_keymaps_plugins[buffered.plugin][modes]) do
+                        if info_.key == info.key then
+                            info_.collisions = info_.collisions or {}
+
+                            table.insert(info_.collisions, {
+                                plugin = plugin,
+                                action = info.action
+                            })
+                        end
+                    end
+                else
+                    buffer[modes][info.key] = {
+                        plugin = plugin,
+                        action = info.action
+                    }
+                end
+            end
+        end
+    end
+end
+
+function _show_keymaps(title, keymaps, filter_keys)
+    check_collisions()
+    echo({ { title, "Function" } })
 
     col_w = 30
     sep = " | "
 
-    local sorted = {}
-    for k, v in pairs(baron_keymaps) do
-        v.key = k
-        table.insert(sorted, v)
+    -- local sorted = {}
+    -- for modes, infos in pairs(keymaps) do
+    --     table.insert(sorted, infos)
+    -- end
+
+    -- table.sort(sorted, function(entry1, entry2)
+    --     -- Split modes into tables for comparison
+    --     local modes1 = {}
+    --     local modes2 = {}
+    --
+    --     for mode in entry1.modes:gmatch("[^,]+") do
+    --         table.insert(modes1, mode)
+    --     end
+    --
+    --     for mode in entry2.modes:gmatch("[^,]+") do
+    --         table.insert(modes2, mode)
+    --     end
+    --
+    --     -- Compare modes lexicographically
+    --     for i = 1, math.min(#modes1, #modes2) do
+    --         if modes1[i] < modes2[i] then
+    --             return true
+    --         elseif modes1[i] > modes2[i] then
+    --             return false
+    --         end
+    --     end
+    --
+    --     -- If modes are equal up to this point, compare by key
+    --     if #modes1 < #modes2 then
+    --         return true
+    --     elseif #modes1 > #modes2 then
+    --         return false
+    --     else
+    --         return entry1.key < entry2.key
+    --     end
+    -- end)
+
+    echo({ { pad('', col_w * 4, '-'), "Comment" } })
+    cols = {
+        pad("Modes", 10, ' '),
+        pad("Keybind", col_w, ' '),
+        pad("Action", col_w, ' '),
+        pad("Description", col_w, ' '),
+    }
+
+    header = {}
+    for i, col in ipairs(cols) do
+        table.insert(header, { col, "Statement" })
+        if i < #cols then
+            table.insert(header, { sep, "Comment" })
+        end
     end
 
-    table.sort(sorted, function(entry1, entry2)
-        -- Split modes into tables for comparison
-        local modes1 = {}
-        local modes2 = {}
+    echo(header)
 
-        for mode in entry1.modes:gmatch("[^,]+") do
-            table.insert(modes1, mode)
+    for modes, infos in pairs(keymaps) do
+        local modes_hl
+        if modes == "i" then
+            modes_hl = "Structure"
+        elseif modes == "n" then
+            modes_hl = "Type"
+        elseif modes == "v" then
+            modes_hl = "Statement"
         end
-
-        for mode in entry2.modes:gmatch("[^,]+") do
-            table.insert(modes2, mode)
-        end
-
-        -- Compare modes lexicographically
-        for i = 1, math.min(#modes1, #modes2) do
-            if modes1[i] < modes2[i] then
-                return true
-            elseif modes1[i] > modes2[i] then
-                return false
+        echo({ { pad(modes, 10, ' '), modes_hl } })
+        for i, v in ipairs(infos) do
+            if filter_keys and not tb_util.contains(filter_keys, v.key) then
+                goto continue
             end
-        end
 
-        -- If modes are equal up to this point, compare by key
-        if #modes1 < #modes2 then
-            return true
-        elseif #modes1 > #modes2 then
-            return false
-        else
-            return entry1.key < entry2.key
-        end
-    end)
+            local action = v.action
+            local desc = v.options ~= nil and v.options.desc or nil
+            if type(action) == "function" then
+                action = "<fn>"
+            end
+            action = str_util.limit(action, col_w)
 
-    print(pad('', col_w * 4, '-'))
-    col1 = pad("Modes", 10, ' ')
-    col2 = pad("Keybind", col_w, ' ')
-    col3 = pad("Action", col_w, ' ')
-    col4 = pad("Help", col_w, ' ')
-    print(col1 .. sep .. col2 .. sep .. col3 .. sep .. col4)
-    for k, v in pairs(sorted) do
-        print(
-            rpad(v.modes, 10, ' ') .. sep ..
-            rpad(v.key, col_w, ' ') .. sep ..
-            rpad(v.action, col_w, ' ') .. sep ..
-            rpad(v.help, col_w, ' ')
-        )
+            local key = v.key
+            local key_hl
+            -- local cls = ""
+            if v.collisions then
+                -- cls = "collides with: "
+                -- for i, collision in ipairs(v.collisions) do
+                --     cls = cls .. collision.plugin
+                --     if i < #v.collisions then
+                --         cls = cls .. ","
+                --     end
+                -- end
+                key_hl = "Error"
+            end
+
+            echo({
+                { rpad('', 10, ' '),        nil },
+                { sep,                      "Comment" },
+                { rpad(key, col_w, ' '),    key_hl },
+                { sep,                      "Comment" },
+                { rpad(action, col_w, ' '), nil },
+                { sep,                      "Comment" },
+                { rpad(desc, col_w, ' '),   "Identifier" },
+                -- { cls,                      "Error" }
+            })
+
+            ::continue::
+        end
     end
-    print(pad('', col_w * 4, '-'))
+    echo({ { pad('', col_w * 4, '-'), "Comment" } })
 end
 
-local function unset(key)
-    pcall(vim.keymap.del, 'i', key)
-    pcall(vim.keymap.del, 'n', key)
-    pcall(vim.keymap.del, 'v', key)
+local function vmap_xmode(key, action, options)
+    _set("i", key, "<C-o>v" .. action, options)
+    _set("n", key, "v" .. action, options)
+    _set("v", key, action, options)
 end
 
-local function format_help(modes, action, help)
-    return string.format("[%s] %s (%s)", modes, action, help)
-end
-
-local function map_xmode_uniform(key, cmd, help)
-    baron_keymaps[key] = {
-        modes = "i,n,v",
-        action = cmd,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, cmd)
-    vim.keymap.set('n', key, cmd)
-    vim.keymap.set('v', key, cmd)
-end
-
-local function cmd_xmode(key, cmd, help)
-    baron_keymaps[key] = {
-        modes = "i,n,v",
-        action = cmd,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, string.format('<C-o>%s<CR>', cmd))
-    vim.keymap.set('n', key, string.format('%s<CR>', cmd))
-    vim.keymap.set('v', key, string.format('%s<CR>', cmd))
-end
-
-local function map_xmode(key, map, help)
-    baron_keymaps[key] = {
-        modes = "i,n,v",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, string.format('<C-o>%s', map))
-    vim.keymap.set('n', key, string.format('%s', map))
-    vim.keymap.set('v', key, string.format('%s', map))
-end
-
-local function vcmd_xmode(key, cmd, help)
-    baron_keymaps[key] = {
-        modes = "i,n,v",
-        action = cmd,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, string.format('<C-o>v%s<CR>', cmd))
-    vim.keymap.set('n', key, string.format('v%s<CR>', cmd))
-    vim.keymap.set('v', key, string.format('%s<CR>', cmd))
-end
-
-local function vmap_xmode(key, map, help)
-    baron_keymaps[key] = {
-        modes = "i,n,v",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, string.format('<C-o>v%s', map))
-    vim.keymap.set('n', key, string.format('v%s', map))
-    vim.keymap.set('v', key, string.format('%s', map))
-end
-
-local function cmd_nv(key, cmd, help)
-    baron_keymaps[key] = {
-        modes = "n,v",
-        action = cmd,
-        help = help,
-    }
-
-    vim.keymap.set('n', key, string.format('%s<CR>', cmd))
-    vim.keymap.set('v', key, string.format('%s<CR>', cmd))
-end
-
-local function map_i(key, map, help)
-    baron_keymaps[key] = {
-        modes = "i",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('i', key, map)
-end
-
-local function map_n(key, map, help)
-    baron_keymaps[key] = {
-        modes = "n",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('n', key, map)
-end
-
-local function map_v(key, map, help)
-    baron_keymaps[key] = {
-        modes = "v",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('v', key, map)
-end
-
-local function map_nv(key, map, help)
-    baron_keymaps[key] = {
-        modes = "n,v",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('n', key, map)
-    vim.keymap.set('v', key, map)
-end
-
-local function cmd_leader(key, cmd, help)
+local function map_leader(key, action, options)
     key = "<leader>" .. key
-    baron_keymaps[key] = {
-        modes = "n",
-        action = cmd,
-        help = help,
-    }
-
-    vim.keymap.set('n', key, string.format('%s<CR>', cmd))
-end
-
-local function map_leader(key, map, help)
-    key = "<leader>" .. key
-    baron_keymaps[key] = {
-        modes = "n",
-        action = map,
-        help = help,
-    }
-
-    vim.keymap.set('n', key, map)
+    _set("n", key, action, options)
 end
 
 --[[
-    /////////////////////////////////
-    ////////////    X   /////////////
-    /////////////////////////////////
+    ///////////////////////////////////////
+    ////////////    KEYMAPS   /////////////
+    ///////////////////////////////////////
 ]]
--- Basics
-map_i('<Esc>', '<Esc>', 'enter normal mode')
-map_n('<Esc>', 'a', 'enter insert mode')
-map_xmode('<C-S-Z>', '', 'Prevent suspend')
-cmd_xmode('<C-q>', ':q!', 'force quit')
-cmd_xmode('<C-S-q>', ':qa!', 'force quit all')
-cmd_xmode('<C-t>', ':term', 'open terminal')
-cmd_xmode('<C-s>', ':w', 'save document')
-map_xmode('<C-z>', 'u', 'undo')
-map_xmode('<C-y>', '<C-r>', 'redo')
+
+local motions = { "", "w", "e", "$", "0", "gg", "G", "}" }
+local text_objects = { "i(", "a(", "i[", "a[", "i{", "a{" }
+--[[
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    >>>>>>>>>>>>    X   >>>>>>>>>>>>
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+]]
+_set("i,n,v", '<C-S-Z>', '', { desc = 'Prevent suspend' }, true)
+_set("i,n,v", '<C-q>', ':q!<CR>', { desc = 'force quit' }, true)
+_set("i,n,v", '<C-S-q>', ':qa!<CR>', { desc = 'force quit all' }, true)
+_set("i,n,v", '<C-t>', ':term<CR>', { desc = 'open terminal' }, true)
+_set("i,n,v", '<C-s>', ':w<CR>', { desc = 'save document' }, true)
+_set("i,n,v", '<C-z>', 'u', { desc = 'undo' }, true)
+_set("i,n,v", '<C-y>', '<C-r>', { desc = 'redo' }, true)
+_set("i,n,v", '<C-a>', '^', { desc = 'goto line start' }, true)
+_set("i,n,v", '<C-e>', '<End>', { desc = 'goto line end' }, true)
+_set("i,n,v", '<S-Del>', 'dd', { desc = 'delete line(s)' }, true)
+_set("i,n,v", '<C-Del>', 'dw', { desc = 'delete word to right' }, true)
+_set("i,n,v", '<C-x>', 'd', { desc = 'cut' }, true)
+_set("i,n,v", '<C-c>', 'y', { desc = 'copy' }, true)
+_set("i,n,v", '<C-d>', ':t.<CR>', { desc = 'duplicate line' }, true)
 
 -- Selection
-vmap_xmode('<S-Up>', 'k', 'select up')
-vmap_xmode('<S-Down>', 'j', 'select down')
-vmap_xmode('<S-C-Up>', '<PageUp>', 'select page up')
-vmap_xmode('<S-C-Down>', '<PageDown>', 'select page down')
-vmap_xmode('<S-Left>', 'h', 'select to the left')
-vmap_xmode('<S-Right>', 'l', 'select to the right')
-vmap_xmode('<S-C-Left>', '<C-Left>', 'select to the left with skip')
-vmap_xmode('<S-C-Right>', '<C-Right>', 'select to the right with skip')
-
--- Navigation
-map_xmode('<C-a>', '^', 'goto line start')
-map_xmode('<C-e>', '<End>', 'goto line end')
-map_i('<C-Left>', '<Esc>bi', 'skip word left')
-map_n('<C-Left>', 'b', 'skip word left')
-map_i('<C-Right>', '<Esc>ea', 'skip word right')
-map_n('<C-Right>', 'e', 'skip word right')
-
--- Move line(s) up
-map_i('<A-Up>', '<C-o>:move -2<CR>', 'move line(s) up')
-map_n('<A-Up>', ':move -2<CR>', 'move line(s) up')
-map_v('<A-Up>', ':move \'<-2<CR>gv', 'move line(s) up')
-
--- Move line(s) down
-map_i('<A-Down>', '<Esc>:move +1<CR>i', 'move line(s) down')
-map_n('<A-Down>', ':move +1<CR>', 'move line(s) down')
-map_v('<A-Down>', ':move \'>+1<CR>gv', 'move line(s) down')
-
--- Delete
-map_xmode('<S-Del>', 'dd', 'delete line(s)')
-map_i('<C-BS>', '<C-w>', 'delete word to left')
-map_nv('<C-BS>', 'db', 'delete word to left')
-map_xmode('<C-Del>', 'dw', 'delete word to right')
-
--- Copy, Paste, Duplicate
-map_xmode('<C-x>', 'd', 'cut')
-map_xmode('<C-c>', 'y', 'copy')
-map_nv('<C-v>', 'p', 'paste')
-map_i('<C-v>', '<C-r>+', 'paste')
-cmd_xmode('<C-d>', ':t.', 'duplicate line')
-map_v('<C-d>', ':\'<,\'>t.<cr>', 'duplicate line(s)')
+vmap_xmode('<S-Up>', 'k', { desc = 'select up' })
+vmap_xmode('<S-Down>', 'j', { desc = 'select down' })
+vmap_xmode('<S-C-Up>', '<PageUp>', { desc = 'select page up' })
+vmap_xmode('<S-C-Down>', '<PageDown>', { desc = 'select page down' })
+vmap_xmode('<S-Left>', 'h', { desc = 'select to the left' })
+vmap_xmode('<S-Right>', 'l', { desc = 'select to the right' })
+vmap_xmode('<S-C-Left>', '<C-Left>', { desc = 'select to the left with skip' })
+vmap_xmode('<S-C-Right>', '<C-Right>', { desc = 'select to the right with skip' })
 
 --[[
-    /////////////////////////////////
-    //////////// NORMAL /////////////
-    /////////////////////////////////
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    >>>>>>>>>>>> NORMAL >>>>>>>>>>>>
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-map_n('x', '\'_x', 'delete char no copy')
-cmd_leader('b', ':bprev', 'prev buffer')
-map_leader('+', '<C-a>', 'incr number')
-map_leader('-', '<C-x>', 'decr number')
-cmd_leader('cm', ':nohl', 'clear search matches')
+_set("n", '<C-BS>', 'db', { desc = 'delete word to left' })
+_set("n", '<C-v>', 'p', { desc = 'paste' })
+_set("n", "s", "*``v<C-g>", { desc = "Enter selection mode" })
+_set("n", "x", "dl", { desc = "Cut character under cursor" })
+_set("n", "d", "_d", { desc = "Delete character under cursor" })
+_set("n", '<Esc>', 'a', { desc = "Enter insert mode" })
+_set("n", '<C-Left>', 'b', { desc = 'skip word left' })
+_set("n", '<C-Right>', 'e', { desc = 'skip word right' })
+_set("n", '<A-Up>', ':move -2<CR>', { desc = 'move line(s) up' })
+_set("n", '<A-Down>', ':move +1<CR>', { desc = 'move line(s) down' })
+map_leader('b', ':bprev<CR>', { desc = 'prev buffer' })
+map_leader('+', '<C-a>', { desc = 'incr number' })
+map_leader('-', '<C-x>', { desc = 'decr number' })
+map_leader('cm', ':nohl<CR>', { desc = 'clear search matches' })
 
 -- window splitting
-map_leader('sv', '<C-w>v', 'vertical split')
-map_leader('sh', '<C-w>s', 'horizontal split')
-map_leader('se', '<C-w>=', 'equal split')
-cmd_leader('sx', ':close', 'close split')
+map_leader('sv', '<C-w>v', { desc = 'vertical split' })
+map_leader('sh', '<C-w>s', { desc = 'horizontal split' })
+map_leader('se', '<C-w>=', { desc = 'equal split' })
+map_leader('sx', ':close<CR>', { desc = 'close split' })
 
 -- tabs
-cmd_leader('to', ':tabnew', 'open new tab')
-cmd_leader('tx', ':tabclose', 'close tab')
-cmd_leader('tn', ':tabn', 'goto next tab')
-cmd_leader('tp', ':tabp', 'goto prev tab')
+map_leader('to', ':tabnew<CR>', { desc = 'open new tab' })
+map_leader('tx', ':tabclose<CR>', { desc = 'close tab' })
+map_leader('tn', ':tabn<CR>', { desc = 'goto next tab' })
+map_leader('tp', ':tabp<CR>', { desc = 'goto prev tab' })
 
 --[[
-    /////////////////////////////////
-    //////////// VISUAL /////////////
-    /////////////////////////////////
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    >>>>>>>>>>>> VISUAL >>>>>>>>>>>>
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-map_v('<BS>', 'd', 'delete backward')
-map_v("<", "<gv", "Unindent & stay in visual mode");
-map_v(">", ">gv", "Indent & stay in visual mode");
+_set("v", '<C-BS>', ':<C-u>normal! db<CR>', { desc = 'delete word to left' })
+_set("v", '<C-v>', '\"_dP', { desc = 'paste, replacing selected text without copying it' })
+_set("v", '<C-S-v>', '\"_dP', { desc = 'paste, replacing selected text without copying it' })
+_set("v", '<BS>', 'd', { desc = 'delete backward' })
+_set("v", "<", "<gv", { desc = "Unindent & stay in visual mode" })
+_set("v", ">", ">gv", { desc = "Indent & stay in visual mode" })
+_set("v", '<C-d>', ':\'<,\'>t.<cr>', { desc = 'duplicate line(s)' })
+_set("v", '<A-Down>', ':move \'>+1<CR>gv', { desc = 'move line(s) down' })
+_set("v", '<A-Up>', ':move \'<-2<CR>gv', { desc = 'move line(s) up' })
+_set("s", "<Esc>", "<C-g><Esc>", { desc = "Leave selection mode" })
 
 --[[
-    /////////////////////////////////
-    //////////// INSERT /////////////
-    /////////////////////////////////
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    >>>>>>>>>>>> INSERT >>>>>>>>>>>>
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-map_i('<Space>', ' ')
-map_i('<C-Bslash>', '<Esc><S-k>')
+_set("i", '<Esc>', '<Esc>', { desc = "Enter normal mode" })
+_set("i", '<C-e>', '<End>', { desc = "Move to end of line" })
+_set("i", '<C-BS>', '<C-w>', { desc = 'delete word to left' })
+_set("i", '<C-Left>', '<Esc>bi', { desc = 'skip word left' })
+_set("i", '<C-Right>', '<Esc>ea', { desc = 'skip word right' })
+_set("i", '<A-Up>', '<C-o>:move -2<CR>', { desc = 'move line(s) up' })
+_set("i", '<A-Down>', '<Esc>:move +1<CR>i', { desc = 'move line(s) down' })
+_set("i", '<C-v>', '<C-r>+', { desc = 'paste' })
+_set("i", '<Space>', ' ')
+_set("i", '<C-Bslash>', '<Esc><S-k>')
+
+return keymaps
