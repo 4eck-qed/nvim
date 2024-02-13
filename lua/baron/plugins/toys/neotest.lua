@@ -18,7 +18,7 @@ return {
                         -- in all my projects
                         min_init = "./scripts/tests/minimal.vim",
                     }),
-                }
+                },
             })
 
             local keyset = require("baron.core.keymaps").set

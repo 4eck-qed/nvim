@@ -21,7 +21,7 @@ baron.keymaps = {}
 -- key: string (=plugin) ; value: table (=keymaps=[key: string (=modes), value: table (=infos)]
 baron.keymaps_plugins = {}
 
-vim.g.mapleader = ' '
+vim.g.mapleader = " "
 
 --[[
     /////////////////////////////////
@@ -91,14 +91,14 @@ local function check_collisions()
 
                             table.insert(info_.collisions, {
                                 plugin = plugin,
-                                action = info.action
+                                action = info.action,
                             })
                         end
                     end
                 else
                     buffer[modes][info.key] = {
                         plugin = plugin,
-                        action = info.action
+                        action = info.action,
                     }
                 end
             end
@@ -150,12 +150,12 @@ local function _show_keymaps(title, kms, filter_keys)
     --     end
     -- end)
 
-    echo({ { pad('', col_w * 4, '-'), "Comment" } })
+    echo({ { pad("", col_w * 4, "-"), "Comment" } })
     local cols = {
-        pad("Modes", 10, ' '),
-        pad("Keybind", col_w, ' '),
-        pad("Action", col_w, ' '),
-        pad("Description", col_w, ' '),
+        pad("Modes", 10, " "),
+        pad("Keybind", col_w, " "),
+        pad("Action", col_w, " "),
+        pad("Description", col_w, " "),
     }
 
     local header = {}
@@ -177,7 +177,7 @@ local function _show_keymaps(title, kms, filter_keys)
         elseif modes == "v" then
             modes_hl = "Statement"
         end
-        echo({ { pad(modes, 10, ' '), modes_hl } })
+        echo({ { pad(modes, 10, " "), modes_hl } })
         for i, v in ipairs(infos) do
             if filter_keys and not tabelu.contains(filter_keys, v.key) then
                 goto continue
@@ -205,20 +205,20 @@ local function _show_keymaps(title, kms, filter_keys)
             end
 
             echo({
-                { rpad('', 10, ' '),        nil },
-                { sep,                      "Comment" },
-                { rpad(key, col_w, ' '),    key_hl },
-                { sep,                      "Comment" },
-                { rpad(action, col_w, ' '), nil },
-                { sep,                      "Comment" },
-                { rpad(desc, col_w, ' '),   "Identifier" },
+                { rpad("", 10, " "), nil },
+                { sep, "Comment" },
+                { rpad(key, col_w, " "), key_hl },
+                { sep, "Comment" },
+                { rpad(action, col_w, " "), nil },
+                { sep, "Comment" },
+                { rpad(desc, col_w, " "), "Identifier" },
                 -- { cls,                      "Error" }
             })
 
             ::continue::
         end
     end
-    echo({ { pad('', col_w * 4, '-'), "Comment" } })
+    echo({ { pad("", col_w * 4, "-"), "Comment" } })
 end
 
 local function vmap_xmode(key, action, options)
@@ -231,7 +231,6 @@ local function map_leader(key, action, options)
     key = "<leader>" .. key
     _set("n", key, action, options)
 end
-
 
 --[[
     Global
@@ -246,7 +245,7 @@ end
 function keymaps.set(plugin, modes, key, action, options)
     baron.keymaps_plugins[plugin] = baron.keymaps_plugins[plugin] or {}
 
-    local modes_str = type(modes) == "table" and table.concat(modes, ',') or modes
+    local modes_str = type(modes) == "table" and table.concat(modes, ",") or modes
     local modes_tb = {}
 
     -- Convert `i,n,v` to `{'i', 'n', 'v'}`
@@ -276,7 +275,7 @@ end
 ---@param filter_keys table | nil list of keys
 function show_keymaps(filter_keys)
     if filter_keys then
-        echo({ { "Filter: ", "WarningMsg" }, { table.concat(filter_keys, ', ') } })
+        echo({ { "Filter: ", "WarningMsg" }, { table.concat(filter_keys, ", ") } })
     end
     _show_keymaps("Core", baron.keymaps, filter_keys)
     for k, v in pairs(baron.keymaps_plugins) do
@@ -297,77 +296,79 @@ local text_objects = { "i(", "a(", "i[", "a[", "i{", "a{" }
     >>>>>>>>>>>>    X   >>>>>>>>>>>>
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-_set("i,n,v", '<C-S-Z>', '', { desc = 'Prevent suspend' }, true)
-_set("i,n,v", '<C-q>', ':q!<CR>', { desc = 'force quit' }, true)
-_set("i,n,v", '<C-S-q>', ':qa!<CR>', { desc = 'force quit all' }, true)
-_set("i,n,v", '<C-t>', ':term<CR>', { desc = 'open terminal' }, true)
-_set("i,n,v", '<C-s>', ':w<CR>', { desc = 'save document' }, true)
-_set("i,n,v", '<C-z>', 'u', { desc = 'undo' }, true)
-_set("i,n,v", '<C-y>', '<C-r>', { desc = 'redo' }, true)
-_set("i,n,v", '<C-a>', '^', { desc = 'goto line start' }, true)
-_set("i,n,v", '<C-e>', '<End>', { desc = 'goto line end' }, true)
-_set("i,n,v", '<S-Del>', 'dd', { desc = 'delete line(s)' }, true)
-_set("i,n,v", '<C-Del>', 'dw', { desc = 'delete word to right' }, true)
-_set("i,n,v", '<C-x>', 'd', { desc = 'cut' }, true)
-_set("i,n,v", '<C-c>', 'y', { desc = 'copy' }, true)
-_set("i,n,v", '<C-d>', ':t.<CR>', { desc = 'duplicate line' }, true)
+_set("i,n,v", "<C-S-Z>", "", { desc = "Prevent suspend" }, true)
+_set("i,n,v", "<C-q>", ":q!<CR>", { desc = "force quit" }, true)
+_set("i,n,v", "<C-S-q>", ":qa!<CR>", { desc = "force quit all" }, true)
+_set("i,n,v", "<C-t>", ":term<CR>", { desc = "open terminal" }, true)
+_set("i,n,v", "<C-s>", ":w<CR>", { desc = "save document" }, true)
+_set("i,n,v", "<C-z>", "u", { desc = "undo" }, true)
+_set("i,n,v", "<C-y>", "<C-r>", { desc = "redo" }, true)
+_set("i,n,v", "<C-a>", "^", { desc = "goto line start" }, true)
+_set("i,n,v", "<C-e>", "<End>", { desc = "goto line end" }, true)
+_set("i,n,v", "<S-Del>", "dd", { desc = "delete line(s)" }, true)
+_set("i,n,v", "<C-Del>", "dw", { desc = "delete word to right" }, true)
+_set("i,n,v", "<C-x>", "d", { desc = "cut" }, true)
+_set("i,n,v", "<C-c>", "y", { desc = "copy" }, true)
+_set("i,n,v", "<C-d>", ":t.<CR>", { desc = "duplicate line" }, true)
 
 -- Selection
-vmap_xmode('<S-Up>', 'k', { desc = 'select up' })
-vmap_xmode('<S-Down>', 'j', { desc = 'select down' })
-vmap_xmode('<S-C-Up>', '<PageUp>', { desc = 'select page up' })
-vmap_xmode('<S-C-Down>', '<PageDown>', { desc = 'select page down' })
-vmap_xmode('<S-Left>', 'h', { desc = 'select to the left' })
-vmap_xmode('<S-Right>', 'l', { desc = 'select to the right' })
-vmap_xmode('<S-C-Left>', '<C-Left>', { desc = 'select to the left with skip' })
-vmap_xmode('<S-C-Right>', '<C-Right>', { desc = 'select to the right with skip' })
+_set("i,n", "<S-Up>", "Vk", { desc = "select up (line select)" })
+_set("v", "<S-Up>", "k")
+_set("i,n", "<S-Down>", "Vj", { desc = "select down (line select)" })
+_set("v", "<S-Down>", "j")
+vmap_xmode("<S-C-Up>", "<PageUp>", { desc = "select page up" })
+vmap_xmode("<S-C-Down>", "<PageDown>", { desc = "select page down" })
+vmap_xmode("<S-Left>", "h", { desc = "select to the left" })
+vmap_xmode("<S-Right>", "l", { desc = "select to the right" })
+vmap_xmode("<S-C-Left>", "<C-Left>", { desc = "select to the left with skip" })
+vmap_xmode("<S-C-Right>", "<C-Right>", { desc = "select to the right with skip" })
 
 --[[
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     >>>>>>>>>>>> NORMAL >>>>>>>>>>>>
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-_set("n", '<C-BS>', 'db', { desc = 'delete word to left' })
-_set("n", '<C-v>', 'p', { desc = 'paste' })
+_set("n", "<C-BS>", "db", { desc = "delete word to left" })
+_set("n", "<C-v>", "p", { desc = "paste" })
 _set("n", "s", "*``v<C-g>", { desc = "Enter selection mode" })
 _set("n", "x", "dl", { desc = "Cut character under cursor" })
 _set("n", "d", "_d", { desc = "Delete character under cursor" })
-_set("n", '<Esc>', 'a', { desc = "Enter insert mode" })
-_set("n", '<C-Left>', 'b', { desc = 'skip word left' })
-_set("n", '<C-Right>', 'e', { desc = 'skip word right' })
-_set("n", '<A-Up>', ':move -2<CR>', { desc = 'move line(s) up' })
-_set("n", '<A-Down>', ':move +1<CR>', { desc = 'move line(s) down' })
-map_leader('b', ':bprev<CR>', { desc = 'prev buffer' })
-map_leader('+', '<C-a>', { desc = 'incr number' })
-map_leader('-', '<C-x>', { desc = 'decr number' })
-map_leader('cm', ':nohl<CR>', { desc = 'clear search matches' })
+_set("n", "<Esc>", "a", { desc = "Enter insert mode" })
+_set("n", "<C-Left>", "b", { desc = "skip word left" })
+_set("n", "<C-Right>", "e", { desc = "skip word right" })
+_set("n", "<A-Up>", ":move -2<CR>", { desc = "move line(s) up" })
+_set("n", "<A-Down>", ":move +1<CR>", { desc = "move line(s) down" })
+map_leader("b", ":bprev<CR>", { desc = "prev buffer" })
+map_leader("+", "<C-a>", { desc = "incr number" })
+map_leader("-", "<C-x>", { desc = "decr number" })
+map_leader("cm", ":nohl<CR>", { desc = "clear search matches" })
 
 -- window splitting
-map_leader('sv', '<C-w>v', { desc = 'vertical split' })
-map_leader('sh', '<C-w>s', { desc = 'horizontal split' })
-map_leader('se', '<C-w>=', { desc = 'equal split' })
-map_leader('sx', ':close<CR>', { desc = 'close split' })
+map_leader("sv", "<C-w>v", { desc = "vertical split" })
+map_leader("sh", "<C-w>s", { desc = "horizontal split" })
+map_leader("se", "<C-w>=", { desc = "equal split" })
+map_leader("sx", ":close<CR>", { desc = "close split" })
 
 -- tabs
-map_leader('to', ':tabnew<CR>', { desc = 'open new tab' })
-map_leader('tx', ':tabclose<CR>', { desc = 'close tab' })
-map_leader('tn', ':tabn<CR>', { desc = 'goto next tab' })
-map_leader('tp', ':tabp<CR>', { desc = 'goto prev tab' })
+map_leader("to", ":tabnew<CR>", { desc = "open new tab" })
+map_leader("tx", ":tabclose<CR>", { desc = "close tab" })
+map_leader("tn", ":tabn<CR>", { desc = "goto next tab" })
+map_leader("tp", ":tabp<CR>", { desc = "goto prev tab" })
 
 --[[
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     >>>>>>>>>>>> VISUAL >>>>>>>>>>>>
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-_set("v", '<C-BS>', ':<C-u>normal! db<CR>', { desc = 'delete word to left' })
-_set("v", '<C-v>', '\"_dP', { desc = 'paste, replacing selected text without copying it' })
-_set("v", '<C-S-v>', '\"_dP', { desc = 'paste, replacing selected text without copying it' })
-_set("v", '<BS>', 'd', { desc = 'delete backward' })
+_set("v", "<C-BS>", ":<C-u>normal! db<CR>", { desc = "delete word to left" })
+_set("v", "<C-v>", '"_dP', { desc = "paste, replacing selected text without copying it" })
+_set("v", "<C-S-v>", '"_dP', { desc = "paste, replacing selected text without copying it" })
+_set("v", "<BS>", "d", { desc = "delete backward" })
 _set("v", "<", "<gv", { desc = "Unindent & stay in visual mode" })
 _set("v", ">", ">gv", { desc = "Indent & stay in visual mode" })
-_set("v", '<C-d>', ':\'<,\'>t.<cr>', { desc = 'duplicate line(s)' })
-_set("v", '<A-Down>', ':move \'>+1<CR>gv', { desc = 'move line(s) down' })
-_set("v", '<A-Up>', ':move \'<-2<CR>gv', { desc = 'move line(s) up' })
+_set("v", "<C-d>", ":'<,'>t.<cr>", { desc = "duplicate line(s)" })
+_set("v", "<A-Down>", ":move '>+1<CR>gv", { desc = "move line(s) down" })
+_set("v", "<A-Up>", ":move '<-2<CR>gv", { desc = "move line(s) up" })
 _set("s", "<Esc>", "<C-g><Esc>", { desc = "Leave selection mode" })
 
 --[[
@@ -375,15 +376,15 @@ _set("s", "<Esc>", "<C-g><Esc>", { desc = "Leave selection mode" })
     >>>>>>>>>>>> INSERT >>>>>>>>>>>>
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
-_set("i", '<Esc>', '<Esc>', { desc = "Enter normal mode" })
-_set("i", '<C-e>', '<End>', { desc = "Move to end of line" })
-_set("i", '<C-BS>', '<C-w>', { desc = 'delete word to left' })
-_set("i", '<C-Left>', '<Esc>bi', { desc = 'skip word left' })
-_set("i", '<C-Right>', '<Esc>ea', { desc = 'skip word right' })
-_set("i", '<A-Up>', '<C-o>:move -2<CR>', { desc = 'move line(s) up' })
-_set("i", '<A-Down>', '<Esc>:move +1<CR>i', { desc = 'move line(s) down' })
-_set("i", '<C-v>', '<C-r>+', { desc = 'paste' })
-_set("i", '<Space>', ' ')
-_set("i", '<C-Bslash>', '<Esc><S-k>')
+_set("i", "<Esc>", "<Esc>", { desc = "Enter normal mode" })
+_set("i", "<C-e>", "<End>", { desc = "Move to end of line" })
+_set("i", "<C-BS>", "<C-w>", { desc = "delete word to left" })
+_set("i", "<C-Left>", "<Esc>bi", { desc = "skip word left" })
+_set("i", "<C-Right>", "<Esc>ea", { desc = "skip word right" })
+_set("i", "<A-Up>", "<C-o>:move -2<CR>", { desc = "move line(s) up" })
+_set("i", "<A-Down>", "<Esc>:move +1<CR>i", { desc = "move line(s) down" })
+_set("i", "<C-v>", "<C-r>+", { desc = "paste" })
+_set("i", "<Space>", " ")
+_set("i", "<C-Bslash>", "<Esc><S-k>")
 
 return keymaps

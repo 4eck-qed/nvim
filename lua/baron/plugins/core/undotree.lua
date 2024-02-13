@@ -5,5 +5,5 @@ return {
         local plugin = "Undotree"
 
         keyset(plugin, "n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Toggle" })
-    end
+    end,
 }

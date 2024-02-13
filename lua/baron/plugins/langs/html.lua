@@ -5,6 +5,6 @@ return {
         "windwp/nvim-ts-autotag", -- auto close & rename tags
     },
     config = function()
-        require('nvim-ts-autotag').setup()
-    end
+        require("nvim-ts-autotag").setup()
+    end,
 }

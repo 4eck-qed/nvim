@@ -1,3 +1,3 @@
 return {
-    "OmniSharp/omnisharp-vim"
+    "OmniSharp/omnisharp-vim",
 }

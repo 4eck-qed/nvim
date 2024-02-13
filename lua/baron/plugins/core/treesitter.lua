@@ -90,7 +90,7 @@ return {
 
         vim.treesitter.language.register("templ", "templ")
 
-        require('ts_context_commentstring').setup()
+        require("ts_context_commentstring").setup()
         vim.g.skip_ts_context_commentstring_module = true
     end,
 }

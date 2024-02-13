@@ -149,7 +149,7 @@ return {
         })
         keyset(plugin, "n", "<leader>gi", "<Plug>(coc-implementation)", {
             silent = true,
-            desc = "Goto imlementation"
+            desc = "Goto implementation"
         })
         keyset(plugin, "n", "<leader>gr", "<Plug>(coc-references)", {
             silent = true,

@@ -14,12 +14,12 @@ return {
             end, { desc = "Toggle" })
 
             keyset(plugin, "n", "[", function()
-                require("trouble").previous({ skip_groups = true, jump = true });
+                require("trouble").previous({ skip_groups = true, jump = true })
             end, { desc = "Previous" })
 
             keyset(plugin, "n", "]", function()
-                require("trouble").next({ skip_groups = true, jump = true });
+                require("trouble").next({ skip_groups = true, jump = true })
             end, { desc = "Next" })
-        end
+        end,
     },
 }

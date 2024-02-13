@@ -1,15 +1,14 @@
 return {
-  "wfxr/minimap.vim",
-  lazy = false,
-  config = function()
-    vim.g.minimap_width = 10
-    vim.g.minimap_auto_start = 0
-    vim.g.minimap_auto_start_win_enter = 1
-    vim.g.minimap_git_colors = 1
-    vim.g.minimap_highlight_range = 1
+    "wfxr/minimap.vim",
+    lazy = false,
+    config = function()
+        vim.g.minimap_width = 10
+        vim.g.minimap_auto_start = 0
+        vim.g.minimap_auto_start_win_enter = 1
+        vim.g.minimap_git_colors = 1
+        vim.g.minimap_highlight_range = 1
 
-
-    vim.cmd([[
+        vim.cmd([[
       autocmd VimEnter * highlight minimapCursor                           ctermbg=59  ctermfg=228 guibg=#131F1B guifg=#297291
       autocmd VimEnter * highlight minimapRange                            ctermbg=242 ctermfg=228 guibg=#0E1617 guifg=#547B8C
 
@@ -26,8 +25,8 @@ return {
       autocmd VimEnter * highlight minimapRangeDiffRemoved                 ctermbg=242 ctermfg=228 guibg=#0E1617 guifg=#BA0000
     ]])
 
-    local keyset = require("baron.core.keymaps").set
-    local plugin = "Minimap"
-    keyset(plugin, 'n', '<leader>mt', ':MinimapToggle<CR>', { desc = "Toggle" })
-  end
+        local keyset = require("baron.core.keymaps").set
+        local plugin = "Minimap"
+        keyset(plugin, "n", "<leader>mt", ":MinimapToggle<CR>", { desc = "Toggle" })
+    end,
 }
