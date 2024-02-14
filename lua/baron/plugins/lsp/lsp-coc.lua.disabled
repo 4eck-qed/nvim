@@ -91,7 +91,7 @@ return {
         -- no select by setting `"suggest.noselect": true` in your configuration file
         -- NOTE: Use command ':verbose imap <tab>' to make sure Tab is not mapped by
         -- other plugins before putting this into your config
-        local keyset = require("baron.core.keymaps").set
+        local keyset = require("baron.core.keymap").set
         local plugin = "CoC"
 
         keyset(plugin, "i", "<TAB>",

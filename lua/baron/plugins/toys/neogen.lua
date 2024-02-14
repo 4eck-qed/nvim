@@ -11,16 +11,16 @@ return {
             snippet_engine = "luasnip",
         })
 
-        local keyset = require("baron.core.keymaps").set
-        local plugin = "Neogen"
+        local keyset = require("baron.core.keymap").set
+        local cat = "Neogen"
 
-        keyset(plugin, "n", "<leader>nf", function()
+        keyset(cat, "n", "<leader>nf", function()
             neogen.generate({ type = "func" })
         end, {
             desc = "Generate for function",
         })
 
-        keyset(plugin, "n", "<leader>nt", function()
+        keyset(cat, "n", "<leader>nt", function()
             neogen.generate({ type = "type" })
         end, {
             desc = "Generate for type",

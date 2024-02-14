@@ -30,7 +30,6 @@ return {
             },
         })
 
-        local keyset = require("baron.core.keymaps").set
         local format = function()
             conform.format({
                 lsp_fallback = true,
@@ -38,7 +37,9 @@ return {
                 timeout_ms = 1000,
             })
         end
-        keyset("Formatter", { "n", "v" }, "<leader>kd", format, { desc = "Format file or range" })
-        keyset("Formatter", { "i" }, "<C-k><C-d>", format, { desc = "Format file" })
+        local keyset = require("baron.core.keymap").set
+        local cat = "Formatter"
+        keyset(cat, "i", "<C-k><C-d>", format, { desc = "Format file" })
+        keyset(cat, { "n", "v" }, "<leader>kd", format, { desc = "Format file or range" })
     end,
 }

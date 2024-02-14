@@ -21,14 +21,14 @@ return {
                 },
             })
 
-            local keyset = require("baron.core.keymaps").set
-            local plugin = "Neotest"
+            local keyset = require("baron.core.keymap").set
+            local cat = "Neotest"
 
-            keyset(plugin, "n", "<leader>tc", function()
+            keyset(cat, "n", "<leader>tc", function()
                 neotest.run.run()
             end, { desc = "Run test" })
 
-            keyset(plugin, "n", "<leader>tf", function()
+            keyset(cat, "n", "<leader>tf", function()
                 neotest.run.run(vim.fn.expand("%"))
             end, { desc = "Run test ?" })
         end,

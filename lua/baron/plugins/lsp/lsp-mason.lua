@@ -14,19 +14,20 @@ return {
     },
     config = function()
         -- Keymaps
-        local keyset = require("baron.core.keymaps").set
-        local plugin = "LSP"
-        keyset(plugin, "n", "<leader>rr", vim.lsp.buf.rename, { desc = "Rename" })
-        keyset(plugin, "n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
-        keyset(plugin, "n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition" })
-        keyset(plugin, "n", "<F36>", vim.lsp.buf.implementation, { desc = "Goto implementation" })
-        keyset(plugin, "n", "<leader>fr", require("telescope.builtin").lsp_references, { desc = "Find references" })
-        keyset(plugin, "n", "K", vim.lsp.buf.hover, { desc = "Hover" })
-        keyset(plugin, "n", "<leader>[", "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", {
+        local keyset = require("baron.core.keymap").set
+        local cat = "LSP"
+        keyset(cat, "i", "<C-r>r", vim.lsp.buf.rename, { desc = "Rename" })
+        keyset(cat, "n", "<leader>rr", vim.lsp.buf.rename, { desc = "Rename" })
+        keyset(cat, "n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
+        keyset(cat, "n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition" })
+        keyset(cat, "n", "<F36>", vim.lsp.buf.implementation, { desc = "Goto implementation" })
+        keyset(cat, "n", "<leader>fr", require("telescope.builtin").lsp_references, { desc = "Find references" })
+        keyset(cat, "n", "K", vim.lsp.buf.hover, { desc = "Hover" })
+        keyset(cat, "n", "<leader>[", "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", {
             silent = true,
             desc = "Goto previous diagnostic",
         })
-        keyset(plugin, "n", "<leader>]", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", {
+        keyset(cat, "n", "<leader>]", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", {
             silent = true,
             desc = "Goto next diagnostic",
         })

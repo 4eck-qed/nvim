@@ -50,41 +50,41 @@ return {
 
         -- NvimTree
         vim.cmd([[
-      " Arrows
-      autocmd VimEnter * highlight NvimTreeFolderArrowClosed guifg=#3FC5FF
-      autocmd VimEnter * highlight NvimTreeFolderArrowOpen guifg=#3FC5FF
+          " Arrows
+          autocmd VimEnter * highlight NvimTreeFolderArrowClosed guifg=#3FC5FF
+          autocmd VimEnter * highlight NvimTreeFolderArrowOpen guifg=#3FC5FF
 
-      " Executables
-      autocmd VimEnter * highlight NvimTreeExecFile guifg=#00c400 gui=bold
+          " Executables
+          autocmd VimEnter * highlight NvimTreeExecFile guifg=#00c400 gui=bold
 
-      " Copied
-      autocmd VimEnter * highlight NvimTreeCopiedHL guifg=#ff00fb gui=italic
+          " Copied
+          autocmd VimEnter * highlight NvimTreeCopiedHL guifg=#ff00fb gui=italic
 
-      " Symlinks
-      autocmd VimEnter * highlight NvimTreeSymlink guifg=#00eaff gui=italic
+          " Symlinks
+          autocmd VimEnter * highlight NvimTreeSymlink guifg=#00eaff gui=italic
 
-      " Git
-      autocmd VimEnter * highlight NvimTreeIgnored guifg=#808080 gui=italic
-      autocmd VimEnter * highlight NvimTreeFileIgnored guifg=#808080 gui=italic
-      autocmd VimEnter * highlight NvimTreeFolderIgnored guifg=#808080 gui=italic
-    ]])
+          " Git
+          autocmd VimEnter * highlight NvimTreeIgnored guifg=#808080 gui=italic
+          autocmd VimEnter * highlight NvimTreeFileIgnored guifg=#808080 gui=italic
+          autocmd VimEnter * highlight NvimTreeFolderIgnored guifg=#808080 gui=italic
+        ]])
 
-        local keyset = require("baron.core.keymaps").set
-        local plugin = "Tree"
+        local keyset = require("baron.core.keymap").set
+        local cat = "Tree"
 
-        keyset(plugin, "n", "<leader>ee", "<cmd>NvimTreeToggle<CR>", {
+        keyset(cat, "n", "<leader>ee", "<cmd>NvimTreeToggle<CR>", {
             desc = "Toggle file explorer",
         })
 
-        keyset(plugin, "n", "<leader>ef", "<cmd>NvimTreeFindFileToggle<CR>", {
+        keyset(cat, "n", "<leader>ef", "<cmd>NvimTreeFindFileToggle<CR>", {
             desc = "Toggle file explorer on current file",
         })
 
-        keyset(plugin, "n", "<leader>ec", "<cmd>NvimTreeCollapse<CR>", {
+        keyset(cat, "n", "<leader>ec", "<cmd>NvimTreeCollapse<CR>", {
             desc = "Collapse file explorer",
         })
 
-        keyset(plugin, "n", "<leader>er", "<cmd>NvimTreeRefresh<CR>", {
+        keyset(cat, "n", "<leader>er", "<cmd>NvimTreeRefresh<CR>", {
             desc = "Refresh file explorer",
         })
     end,

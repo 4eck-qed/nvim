@@ -25,8 +25,8 @@ return {
       autocmd VimEnter * highlight minimapRangeDiffRemoved                 ctermbg=242 ctermfg=228 guibg=#0E1617 guifg=#BA0000
     ]])
 
-        local keyset = require("baron.core.keymaps").set
-        local plugin = "Minimap"
-        keyset(plugin, "n", "<leader>mt", ":MinimapToggle<CR>", { desc = "Toggle" })
+        local keyset = require("baron.core.keymap").set
+        local cat = "Minimap"
+        keyset(cat, "n", "<leader>mt", ":MinimapToggle<CR>", { desc = "Toggle" })
     end,
 }

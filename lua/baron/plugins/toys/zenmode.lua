@@ -1,10 +1,10 @@
 return {
     "folke/zen-mode.nvim",
     config = function()
-        local keyset = require("baron.core.keymaps").set
-        local plugin = "ZenMode"
+        local keyset = require("baron.core.keymap").set
+        local cat = "ZenMode"
 
-        keyset(plugin, "n", "<leader>zz", function()
+        keyset(cat, "n", "<leader>zz", function()
             require("zen-mode").setup({
                 window = {
                     width = 100,
@@ -17,7 +17,7 @@ return {
             vim.wo.rnu = false
         end, { desc = "Zen mode" })
 
-        keyset(plugin, "n", "<leader>zZ", function()
+        keyset(cat, "n", "<leader>zZ", function()
             require("zen-mode").setup({
                 window = {
                     width = 100,
