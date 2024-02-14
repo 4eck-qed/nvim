@@ -205,13 +205,13 @@ local function _show_keymaps(title, kms, filter_keys)
             end
 
             echo({
-                { rpad("", 10, " "), nil },
-                { sep, "Comment" },
-                { rpad(key, col_w, " "), key_hl },
-                { sep, "Comment" },
+                { rpad("", 10, " "),        nil },
+                { sep,                      "Comment" },
+                { rpad(key, col_w, " "),    key_hl },
+                { sep,                      "Comment" },
                 { rpad(action, col_w, " "), nil },
-                { sep, "Comment" },
-                { rpad(desc, col_w, " "), "Identifier" },
+                { sep,                      "Comment" },
+                { rpad(desc, col_w, " "),   "Identifier" },
                 -- { cls,                      "Error" }
             })
 
@@ -283,6 +283,12 @@ function show_keymaps(filter_keys)
     end
 end
 
+function select_all()
+    vim.cmd("normal gg")
+    vim.cmd("normal V")
+    vim.cmd("normal G")
+end
+
 --[[
     ///////////////////////////////////////
     ////////////    KEYMAPS   /////////////
@@ -304,7 +310,7 @@ _set("i,n,v", "<C-s>", ":w<CR>", { desc = "save document" }, true)
 _set("i,n,v", "<C-z>", "u", { desc = "undo" }, true)
 _set("i,n,v", "<C-y>", "<C-r>", { desc = "redo" }, true)
 _set("i,n,v", "<C-a>", "^", { desc = "goto line start" }, true)
-_set("i,n,v", "<C-e>", "<End>", { desc = "goto line end" }, true)
+_set("i,n,v", "<C-e>", "$", { desc = "goto line end" }, true)
 _set("i,n,v", "<S-Del>", "dd", { desc = "delete line(s)" }, true)
 _set("i,n,v", "<C-Del>", "dw", { desc = "delete word to right" }, true)
 _set("i,n,v", "<C-x>", "d", { desc = "cut" }, true)
@@ -322,6 +328,8 @@ vmap_xmode("<S-Left>", "h", { desc = "select to the left" })
 vmap_xmode("<S-Right>", "l", { desc = "select to the right" })
 vmap_xmode("<S-C-Left>", "<C-Left>", { desc = "select to the left with skip" })
 vmap_xmode("<S-C-Right>", "<C-Right>", { desc = "select to the right with skip" })
+_set("n", "<leader>a", ":lua select_all()<CR>", { desc = "Select all" })
+_set("i", "<C-S-a>", "<C-o>:lua select_all()<CR>l", { desc = "Select all" })
 
 --[[
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -330,7 +338,7 @@ vmap_xmode("<S-C-Right>", "<C-Right>", { desc = "select to the right with skip" 
 ]]
 _set("n", "<C-BS>", "db", { desc = "delete word to left" })
 _set("n", "<C-v>", "p", { desc = "paste" })
-_set("n", "s", "*``v<C-g>", { desc = "Enter selection mode" })
+_set("n", "s", "*``", { desc = "Select word under cursor" })
 _set("n", "x", "dl", { desc = "Cut character under cursor" })
 _set("n", "d", "_d", { desc = "Delete character under cursor" })
 _set("n", "<Esc>", "a", { desc = "Enter insert mode" })
@@ -367,8 +375,8 @@ _set("v", "<BS>", "d", { desc = "delete backward" })
 _set("v", "<", "<gv", { desc = "Unindent & stay in visual mode" })
 _set("v", ">", ">gv", { desc = "Indent & stay in visual mode" })
 _set("v", "<C-d>", ":'<,'>t.<cr>", { desc = "duplicate line(s)" })
-_set("v", "<A-Down>", ":move '>+1<CR>gv", { desc = "move line(s) down" })
 _set("v", "<A-Up>", ":move '<-2<CR>gv", { desc = "move line(s) up" })
+_set("v", "<A-Down>", ":move '>+1<CR>gv", { desc = "move line(s) down" })
 _set("s", "<Esc>", "<C-g><Esc>", { desc = "Leave selection mode" })
 
 --[[
@@ -377,14 +385,11 @@ _set("s", "<Esc>", "<C-g><Esc>", { desc = "Leave selection mode" })
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ]]
 _set("i", "<Esc>", "<Esc>", { desc = "Enter normal mode" })
-_set("i", "<C-e>", "<End>", { desc = "Move to end of line" })
 _set("i", "<C-BS>", "<C-w>", { desc = "delete word to left" })
 _set("i", "<C-Left>", "<Esc>bi", { desc = "skip word left" })
 _set("i", "<C-Right>", "<Esc>ea", { desc = "skip word right" })
 _set("i", "<A-Up>", "<C-o>:move -2<CR>", { desc = "move line(s) up" })
-_set("i", "<A-Down>", "<Esc>:move +1<CR>i", { desc = "move line(s) down" })
+_set("i", "<A-Down>", "<C-o>:move +1<CR>", { desc = "move line(s) down" })
 _set("i", "<C-v>", "<C-r>+", { desc = "paste" })
-_set("i", "<Space>", " ")
-_set("i", "<C-Bslash>", "<Esc><S-k>")
 
 return keymaps
